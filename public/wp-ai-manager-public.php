@@ -89,5 +89,8 @@ class WP_AI_MANAGER_PUBLIC {
 			wp_enqueue_script( $this->plugin_name . '-gtm', plugin_dir_url( __FILE__ ) . 'js/wp-ai-manager-gtm.js', array(), $this->version, !get_option( 'gtm-head' ) );
 			wp_localize_script( $this->plugin_name . '-gtm', 'gtmcid', get_option( 'gtm-id' ) );
 		}
+
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/wp-ai-manager-speed-up.php';
+		WP_AI_MANAGER_PUBLIC_PAGE_SPEED_UP::load_scripts_in_footer($this->plugin_name);
 	}
 }
