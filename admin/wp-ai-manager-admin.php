@@ -123,13 +123,23 @@ class WP_AI_MANAGER_ADMIN {
 	}
 
 	/**
-	 * Creates the Google Tag Manager page
+	 * Creates the Tracking page
 	 *
 	 * @since 		1.0.0
 	 * @return 		void
 	 */
-	public function page_gtm() {
+	public function page_tracking() {
 		include( plugin_dir_path( __FILE__ ) . 'partials/wp-ai-manager-tracking.php' );
+	}
+
+	/**
+	 * Creates the Speed Up page
+	 *
+	 * @since 		1.0.0
+	 * @return 		void
+	 */
+	public function page_speed_up() {
+		include( plugin_dir_path( __FILE__ ) . 'partials/wp-ai-manager-speed-up.php' );
 	}
 
 	/**
@@ -160,7 +170,15 @@ class WP_AI_MANAGER_ADMIN {
 			__( 'Tracking Settings', $this->plugin_name ),
 			__( 'Tracking', $this->plugin_name ),
 			'manage_options',
-			$this->plugin_name . '-gtm',
-			array( $this, 'page_gtm' ));
+			$this->plugin_name . '-tracking',
+			array( $this, 'page_tracking' ));
+
+		add_submenu_page(
+			$this->plugin_name,
+			__( 'Speed Up Settings', $this->plugin_name ),
+			__( 'Speed Up', $this->plugin_name ),
+			'manage_options',
+			$this->plugin_name . '-speed_up',
+			array( $this, 'page_speed_up' ));
 	}
 }
