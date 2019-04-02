@@ -7,7 +7,7 @@
  * @since      1.0.0
  *
  * @package    WP_AI_MANAGER
- * @subpackage WP_AI_MANAGER/includes
+ * @subpackage WP_AI_MANAGER/admin
  */
 
 /**
@@ -18,7 +18,7 @@
  *
  * @since      1.0.0
  * @package    WP_AI_MANAGER
- * @subpackage WP_AI_MANAGER/includes
+ * @subpackage WP_AI_MANAGER/admin
  * @author     Miguel Angel Rubio <miguel@enfocandoelfuturo.com>
  */
 class WP_AI_MANAGER_ADMIN {
@@ -74,7 +74,7 @@ class WP_AI_MANAGER_ADMIN {
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/plugin-name-admin.css', array(), $this->version, 'all' );
+		//wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/plugin-name-admin.css', array(), $this->version, 'all' );
 
 	}
 
@@ -97,8 +97,70 @@ class WP_AI_MANAGER_ADMIN {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/plugin-name-admin.js', array( 'jquery' ), $this->version, false );
+		//wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/plugin-name-admin.js', array( 'jquery' ), $this->version, false );
 
 	}
 
+	/**
+		 * Registers plugin settings
+		 *
+		 * @since 		1.0.0
+		 * @return 		void
+		 */
+	public function register_settings() {
+		// Used to save the Container ID of Google Tag Manager.
+		register_setting($this->plugin_name . '-tracking', 'gtm');
+	}
+
+	/**
+	 * Creates the general page
+	 *
+	 * @since 		1.0.0
+	 * @return 		void
+	 */
+	public function page_general() {
+		include( plugin_dir_path( __FILE__ ) . 'partials/wp-ai-manager-general.php' );
+	}
+
+	/**
+	 * Creates the Google Tag Manager page
+	 *
+	 * @since 		1.0.0
+	 * @return 		void
+	 */
+	public function page_gtm() {
+		include( plugin_dir_path( __FILE__ ) . 'partials/wp-ai-manager-tracking.php' );
+	}
+
+	/**
+	 * Register the JavaScript for the admin area.
+	 *
+	 * @since    1.0.0
+	 */
+	public function add_menu() {
+		add_menu_page(
+			__( 'Dashboard', $this->plugin_name ),
+			__( 'WP AI Manager', $this->plugin_name ),
+			'manage_options',
+			$this->plugin_name,
+			array( $this, 'page_general' ),
+			'dashicons-smiley',
+			0 );
+
+		add_submenu_page(
+			$this->plugin_name,
+			__( 'Dashboard', $this->plugin_name ),
+			__( 'Reports', $this->plugin_name ),
+			'manage_options',
+			$this->plugin_name,
+			array( $this, 'page_general' ));
+
+		add_submenu_page(
+			$this->plugin_name,
+			__( 'Tracking Settings', $this->plugin_name ),
+			__( 'Tracking', $this->plugin_name ),
+			'manage_options',
+			$this->plugin_name . '-gtm',
+			array( $this, 'page_gtm' ));
+	}
 }

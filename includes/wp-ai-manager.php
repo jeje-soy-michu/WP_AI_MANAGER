@@ -128,8 +128,16 @@ class WP_AI_MANAGER {
 	 */
 	private function define_admin_hooks() {
 		$plugin_admin = new WP_AI_MANAGER_ADMIN( $this->get_plugin_name(), $this->get_version() );
+
+		// Enqueue styles and scripts for admin.
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+
+		// Add menus and submenus to the dashboard.
+		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_menu' );
+
+		// Register settings used by the plugin.
+		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_settings' );
 	}
 	/**
 	 * Register all of the hooks related to the public-facing functionality
