@@ -109,7 +109,7 @@ class WP_AI_MANAGER_ADMIN {
 		 */
 	public function register_settings() {
 		// Used to save the Container ID of Google Tag Manager.
-		register_setting($this->plugin_name . '-tracking', 'gtm');
+		register_setting( $this->plugin_name . '-tracking', 'gtm-id' );
 	}
 
 	/**
