@@ -1,8 +1,9 @@
-=== Plugin Name ===
-Contributors: (this should be a list of wordpress.org userid's)
+=== WP AI Manager ===
+Contributors: michuxd
 Donate link: http://enfocandoelfuturo.com/
 Tags: wp manager, ai
 Requires at least: 5.1.1
+Requires PHP: 7.2
 Tested up to: 3.0.1
 Stable tag: trunk
 License: GPLv2 or later
