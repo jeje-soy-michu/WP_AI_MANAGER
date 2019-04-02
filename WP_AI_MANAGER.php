@@ -1,11 +1,10 @@
 <?php
 /**
 * Plugin Name: WP AI Manager
-* Plugin URI: https://enfocandoelfuturo.com
 * Description: This plugin uses Artificial Intelligence to perform some tasks and improve your WordPress site.
 * Version: 1.0.0
 * Author: Miguel Ángel Rubio Muñoz
-* Author URI: https://enfocandoelfuturo.com
+* Author URI: https://enfocandoelfuturo.com/author/michuxd/
 **/
 
 // If this file is called directly, abort.

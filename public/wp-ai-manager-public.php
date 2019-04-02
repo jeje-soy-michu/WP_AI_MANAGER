@@ -84,23 +84,10 @@ class WP_AI_MANAGER_PUBLIC {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Plugin_Name_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Plugin_Name_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
-		wp_enqueue_script( $this->plugin_name . '-gtm', plugin_dir_url( __FILE__ ) . 'js/wp-ai-manager-gtm.js', array(), $this->version, false );
-		wp_localize_script( $this->plugin_name . '-gtm', 'gtmcid', get_option( 'gtm-id' ) );
-
-
+		if( get_option( 'gtm-active' ) && !empty( get_option( 'gtm-id' ) ) ) {
+			// Adding the Google Tag Manager Tracking code to the wordpress header
+			wp_enqueue_script( $this->plugin_name . '-gtm', plugin_dir_url( __FILE__ ) . 'js/wp-ai-manager-gtm.js', array(), $this->version, !get_option( 'gtm-head' ) );
+			wp_localize_script( $this->plugin_name . '-gtm', 'gtmcid', get_option( 'gtm-id' ) );
+		}
 	}
-
 }

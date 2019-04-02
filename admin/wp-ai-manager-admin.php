@@ -74,7 +74,7 @@ class WP_AI_MANAGER_ADMIN {
 		 * class.
 		 */
 
-		//wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/plugin-name-admin.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wp-ai-manager-admin.css', array(), $this->version, 'all' );
 
 	}
 
@@ -97,7 +97,7 @@ class WP_AI_MANAGER_ADMIN {
 		 * class.
 		 */
 
-		//wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/plugin-name-admin.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wp-ai-manager-tracking.js', array( 'jquery' ), $this->version, false );
 
 	}
 
@@ -108,8 +108,16 @@ class WP_AI_MANAGER_ADMIN {
 		 * @return 		void
 		 */
 	public function register_settings() {
+		// Check if the user has active the Google Tag Manager Module.
+		register_setting( $this->plugin_name . '-tracking', 'gtm-active', array( 'type' => 'boolean') );
 		// Used to save the Container ID of Google Tag Manager.
 		register_setting( $this->plugin_name . '-tracking', 'gtm-id' );
+		// Check if the script has to be loaded in the <head>.
+		register_setting( $this->plugin_name . '-tracking', 'gtm-head',
+			array(
+				'type' => 'boolean',
+				'default' => true) 
+			);
 	}
 
 	/**
