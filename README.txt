@@ -13,9 +13,7 @@ This plugin uses Artificial Intelligence to perform some tasks and improve your 
 
 == Description ==
 
-TODO: Write here something usefull
-
-Yeah, maybe I should write something more here.
+This plugin moves all your scripts to the footer, to improve the site performance. And allow you to setup Google Tag Manager.
 
 == Installation ==
 
@@ -43,20 +41,17 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 == Changelog ==
 
-TODO: Create a real changelog
-
 = 1.0.0 =
 * You can activate/deactivate this plugin
+* Configure Google Tag Manager
 
 = 0.0.0 =
 * Nothing
 
 == Upgrade Notice ==
 
-TODO: Create a real Upgrade Notice
-
 = 1.0.0 =
-Upgrade notices describe the reason a user should upgrade.
+You can configure Google Tag Manager
 
 = 0.0.0 =
 This versions is empty. No more than 300 characters.
