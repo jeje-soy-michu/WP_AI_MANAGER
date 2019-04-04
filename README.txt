@@ -29,11 +29,10 @@ My name is Miguel Angel Rubio
 == Changelog ==
 
 = 1.0.0 =
-* You can activate/deactivate this plugin
 * Configure Google Tag Manager
 
 = 0.0.0 =
-* Nothing
+* You can activate/deactivate this plugin
 
 == Upgrade Notice ==
 
@@ -41,4 +40,4 @@ My name is Miguel Angel Rubio
 You can configure Google Tag Manager
 
 = 0.0.0 =
-This versions is empty. No more than 300 characters.
+This versions is empty.
