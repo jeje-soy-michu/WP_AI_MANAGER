@@ -32,11 +32,11 @@ if( get_option( 'upgrade-htaccess' ) ) {
   <table class="form-table">
     <tr valign="top">
       <th scope="row"><?php echo esc_html( __("Load scripts in footer:", $this->plugin_name ) ); ?></th>
-      <td><input id="gtm-active" type="checkbox" name="scripts-footer" value="1" <?php checked(1, get_option('scripts-footer'), true); ?>/></td>
+      <td><input type="checkbox" name="scripts-footer" value="1" <?php checked(1, get_option('scripts-footer'), true); ?>/></td>
     </tr>
     <tr valign="top">
       <th scope="row"><?php echo esc_html( __("Upgrade .htaccess:", $this->plugin_name ) ); ?></th>
-      <td><input class="enable-gtm" type="checkbox" name="upgrade-htaccess" value="1" <?php checked(1, get_option('upgrade-htaccess'), true); ?>/></td>
+      <td><input type="checkbox" name="upgrade-htaccess" value="1" <?php checked(1, get_option('upgrade-htaccess'), true); ?>/></td>
     </tr>
   </table>
   <?php submit_button(); ?>
