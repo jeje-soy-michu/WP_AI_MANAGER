@@ -30,5 +30,8 @@ class WP_AI_MANAGER_ACTIVATOR
 	 */
   public static function activate() {
 
+    // Install All WP Rocket rules of the .htaccess file.
+		require_once plugin_dir_path( __FILE__ ) . '/3rd-party/wp-rocket-htaccess.php';
+    flush_rocket_htaccess();
   }
 }
