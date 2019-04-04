@@ -31,8 +31,8 @@ function deactivate_wp_ai_manager() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/wp-ai-manager-deactivator.php';
 	WP_AI_MANAGER_DEACTIVATOR::deactivate();
 }
-register_activation_hook( __FILE__, 'activate_plugin_name' );
-register_deactivation_hook( __FILE__, 'deactivate_plugin_name' );
+register_activation_hook( __FILE__, 'activate_wp_ai_manager' );
+register_deactivation_hook( __FILE__, 'deactivate_wp_ai_manager' );
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.

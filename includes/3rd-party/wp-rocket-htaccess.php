@@ -5,6 +5,80 @@ defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 
 /**
+ * Get the permissions to apply to files and folders.
+ *
+ * Reminder:
+ * `$perm = fileperms( $file );`
+ *
+ *  WHAT                                         | TYPE   | FILE   | FOLDER |
+ * ----------------------------------------------+--------+--------+--------|
+ * `$perm`                                       | int    | 33188  | 16877  |
+ * `substr( decoct( $perm ), -4 )`               | string | '0644' | '0755' |
+ * `substr( sprintf( '%o', $perm ), -4 )`        | string | '0644' | '0755' |
+ * `$perm & 0777`                                | int    | 420    | 493    |
+ * `decoct( $perm & 0777 )`                      | string | '644'  | '755'  |
+ * `substr( sprintf( '%o', $perm & 0777 ), -4 )` | string | '644'  | '755'  |
+ *
+ * @since  3.2.4
+ * @author Grégory Viguier
+ *
+ * @param  string $type The type: 'dir' or 'file'.
+ * @return int          Octal integer.
+ */
+function rocket_get_filesystem_perms( $type ) {
+	static $perms = [];
+	// Allow variants.
+	switch ( $type ) {
+		case 'dir':
+		case 'dirs':
+		case 'folder':
+		case 'folders':
+			$type = 'dir';
+			break;
+		case 'file':
+		case 'files':
+			$type = 'file';
+			break;
+		default:
+			return 0755;
+	}
+	if ( isset( $perms[ $type ] ) ) {
+		return $perms[ $type ];
+	}
+	// If the constants are not defined, use fileperms() like WordPress does.
+	switch ( $type ) {
+		case 'dir':
+			if ( defined( 'FS_CHMOD_DIR' ) ) {
+				$perms[ $type ] = FS_CHMOD_DIR;
+			} else {
+				$perms[ $type ] = fileperms( ABSPATH ) & 0777 | 0755;
+			}
+			break;
+		case 'file':
+			if ( defined( 'FS_CHMOD_FILE' ) ) {
+				$perms[ $type ] = FS_CHMOD_FILE;
+			} else {
+				$perms[ $type ] = fileperms( ABSPATH . 'index.php' ) & 0777 | 0644;
+			}
+	}
+	return $perms[ $type ];
+}
+
+/**
+ * File creation based on WordPress Filesystem
+ *
+ * @since 1.3.5
+ *
+ * @param string $file    The path of file will be created.
+ * @param string $content The content that will be printed in advanced-cache.php.
+ * @return bool
+ */
+function rocket_put_content( $file, $content ) {
+	$chmod = rocket_get_filesystem_perms( 'file' );
+	return rocket_direct_filesystem()->put_contents( $file, $content, $chmod );
+}
+
+/**
  * Instanciate the filesystem class
  *
  * @since 2.10
@@ -27,7 +101,6 @@ function rocket_direct_filesystem() {
  * @return bool               True on success, false otherwise.
  */
 function flush_rocket_htaccess( $remove_rules = false ) {
-	error_log( $remove_rules );
 	global $is_apache;
 
 	/**
@@ -137,16 +210,7 @@ function rocket_htaccess_rules_test( $rules_name ) {
  */
 function get_rocket_htaccess_marker() {
 	// Recreate WP Rocket marker.
-	$marker = '# BEGIN WP Rocket v' . WP_ROCKET_VERSION . PHP_EOL;
-
-	/**
-	 * Add custom rules before rules added by WP Rocket
-	 *
-	 * @since 2.6
-	 *
-	 * @param string $before_marker The content of all rules.
-	*/
-	$marker .= apply_filters( 'before_rocket_htaccess_rules', '' );
+	$marker = '# BEGIN WP Rocket v' . WP_AI_MANAGER_VERSION . PHP_EOL;
 
 	$marker .= get_rocket_htaccess_charset();
 	$marker .= get_rocket_htaccess_etag();
@@ -155,153 +219,9 @@ function get_rocket_htaccess_marker() {
 	$marker .= get_rocket_htaccess_mod_expires();
 	$marker .= get_rocket_htaccess_mod_deflate();
 
-	if ( \WP_Rocket\Buffer\Cache::can_generate_caching_files() && ! is_rocket_generate_caching_mobile_files() ) {
-		$marker .= get_rocket_htaccess_mod_rewrite();
-	}
-
-	/**
-	 * Add custom rules after rules added by WP Rocket
-	 *
-	 * @since 2.6
-	 *
-	 * @param string $after_marker The content of all rules.
-	*/
-	$marker .= apply_filters( 'after_rocket_htaccess_rules', '' );
-
 	$marker .= '# END WP Rocket' . PHP_EOL;
 
-	/**
-	 * Filter rules added by WP Rocket in .htaccess
-	 *
-	 * @since 2.1
-	 *
-	 * @param string $marker The content of all rules.
-	*/
-	$marker = apply_filters( 'rocket_htaccess_marker', $marker );
-
 	return $marker;
-}
-
-/**
- * Rewrite rules to serve the cache file
- *
- * @since 1.0
- *
- * @return string $rules Rules that will be printed
- */
-function get_rocket_htaccess_mod_rewrite() {
-	// No rewrite rules for multisite.
-	if ( is_multisite() ) {
-		return;
-	}
-
-	// No rewrite rules for Korean.
-	if ( defined( 'WPLANG' ) && 'ko_KR' === WPLANG || 'ko_KR' === get_locale() ) {
-		return;
-	}
-
-	// Get root base.
-	$home_root = rocket_extract_url_component( home_url(), PHP_URL_PATH );
-	$home_root = isset( $home_root ) ? trailingslashit( $home_root ) : '/';
-
-	$site_root = rocket_extract_url_component( site_url(), PHP_URL_PATH );
-	$site_root = isset( $site_root ) ? trailingslashit( $site_root ) : '';
-
-	// Get cache root.
-	if ( strpos( ABSPATH, WP_ROCKET_CACHE_PATH ) === false ) {
-		$cache_root = str_replace( $_SERVER['DOCUMENT_ROOT'] , '', WP_ROCKET_CACHE_PATH );
-	} else {
-		$cache_root = $site_root . str_replace( ABSPATH, '', WP_ROCKET_CACHE_PATH );
-	}
-
-	/**
-	  * Replace the dots by underscores to avoid some bugs on some shared hosting services on filenames (not multisite compatible!)
-	  *
-	  * @since 1.3.0
-	  *
-	  * @param bool true will replace the . by _.
-	 */
-	$http_host = apply_filters( 'rocket_url_no_dots', false ) ? rocket_remove_url_protocol( home_url() ) : '%{HTTP_HOST}';
-
-	/**
-	  * Allow the path to be fully printed or dependant od %DOCUMENT_ROOT (forced for 1&1 by default)
-	  *
-	  * @since 1.3.0
-	  *
-	  * @param bool true will force the path to be full.
-	 */
-	$is_1and1_or_force = apply_filters( 'rocket_force_full_path', strpos( $_SERVER['DOCUMENT_ROOT'], '/kunden/' ) === 0 );
-
-	$rules = '';
-	$gzip_rules = '';
-	$enc = '';
-
-	/**
-	  * Allow to serve gzip cache file
-	  *
-	  * @since 2.4
-	  *
-	  * @param bool true will force to serve gzip cache file.
-	 */
-	if ( function_exists( 'gzencode' ) && apply_filters( 'rocket_force_gzip_htaccess_rules', true ) ) {
-		$rules = '<IfModule mod_mime.c>' . PHP_EOL;
-			$rules .= 'AddType text/html .html_gzip' . PHP_EOL;
-			$rules .= 'AddEncoding gzip .html_gzip' . PHP_EOL;
-		$rules .= '</IfModule>' . PHP_EOL;
-		$rules .= '<IfModule mod_setenvif.c>' . PHP_EOL;
-			$rules .= 'SetEnvIfNoCase Request_URI \.html_gzip$ no-gzip' . PHP_EOL;
-		$rules .= '</IfModule>' . PHP_EOL . PHP_EOL;
-
-		$gzip_rules .= 'RewriteCond %{HTTP:Accept-Encoding} gzip' . PHP_EOL;
-		$gzip_rules .= 'RewriteRule .* - [E=WPR_ENC:_gzip]' . PHP_EOL;
-
-		$enc = '%{ENV:WPR_ENC}';
-	}
-
-	$rules .= '<IfModule mod_rewrite.c>' . PHP_EOL;
-	$rules .= 'RewriteEngine On' . PHP_EOL;
-	$rules .= 'RewriteBase ' . $home_root . PHP_EOL;
-	$rules .= get_rocket_htaccess_ssl_rewritecond();
-	$rules .= $gzip_rules;
-	$rules .= 'RewriteCond %{REQUEST_METHOD} GET' . PHP_EOL;
-	$rules .= 'RewriteCond %{QUERY_STRING} =""' . PHP_EOL;
-
-	$cookies = get_rocket_cache_reject_cookies();
-	if ( $cookies ) {
-		$rules .= 'RewriteCond %{HTTP:Cookie} !(' . $cookies . ') [NC]' . PHP_EOL;
-	}
-
-	$uri = get_rocket_cache_reject_uri();
-	if ( $uri ) {
-		$rules .= 'RewriteCond %{REQUEST_URI} !^(' . $uri . ')$ [NC]' . PHP_EOL;
-	}
-
-	$rules .= ! is_rocket_cache_mobile() ? get_rocket_htaccess_mobile_rewritecond() : '';
-
-	$ua = get_rocket_cache_reject_ua();
-	if ( $ua ) {
-		$rules .= 'RewriteCond %{HTTP_USER_AGENT} !^(' . $ua . ').* [NC]' . PHP_EOL;
-	}
-
-	if ( $is_1and1_or_force ) {
-		$rules .= 'RewriteCond "' . str_replace( '/kunden/', '/', WP_ROCKET_CACHE_PATH ) . $http_host . '%{REQUEST_URI}/index%{ENV:WPR_SSL}.html' . $enc . '" -f' . PHP_EOL;
-	} else {
-		$rules .= 'RewriteCond "%{DOCUMENT_ROOT}/' . ltrim( $cache_root, '/' ) . $http_host . '%{REQUEST_URI}/index%{ENV:WPR_SSL}.html' . $enc . '" -f' . PHP_EOL;
-	}
-
-	$rules .= 'RewriteRule .* "' . $cache_root . $http_host . '%{REQUEST_URI}/index%{ENV:WPR_SSL}.html' . $enc . '" [L]' . PHP_EOL;
-	$rules .= '</IfModule>' . PHP_EOL;
-
-	/**
-	 * Filter rewrite rules to serve the cache file
-	 *
-	 * @since 1.0
-	 *
-	 * @param string $rules Rules that will be printed.
-	*/
-	$rules = apply_filters( 'rocket_htaccess_mod_rewrite', $rules );
-
-	return $rules;
 }
 
 /**
@@ -523,7 +443,7 @@ function get_rocket_htaccess_files_match() {
 	$rules = '<IfModule mod_alias.c>' . PHP_EOL;
 		$rules .= '<FilesMatch "\.(html|htm|rtf|rtx|txt|xsd|xsl|xml)$">' . PHP_EOL;
 			$rules .= '<IfModule mod_headers.c>' . PHP_EOL;
-				 $rules .= 'Header set X-Powered-By "WP Rocket/' . WP_ROCKET_VERSION . '"' . PHP_EOL;
+				 $rules .= 'Header set X-Powered-By "WP Rocket/' . WP_AI_MANAGER_VERSION . '"' . PHP_EOL;
 				 $rules .= 'Header unset Pragma' . PHP_EOL;
 				 $rules .= 'Header append Cache-Control "public"' . PHP_EOL;
 				 $rules .= 'Header unset Last-Modified' . PHP_EOL;
@@ -585,9 +505,10 @@ function get_rocket_htaccess_etag() {
  * @return string $rules Rules that will be printed
  */
 function get_rocket_htaccess_web_fonts_access() {
+	/* Not implemented
 	if ( ! get_rocket_option( 'cdn', false ) ) {
 		return;
-	}
+	}*/
 
 	$rules  = '# Send CORS headers if browsers request them; enabled by default for images.' . PHP_EOL;
 	$rules  .= '<IfModule mod_setenvif.c>' . PHP_EOL;
