@@ -11,6 +11,10 @@
  * @package    WP_AI_MANAGER
  * @subpackage WP_AI_MANAGER/public/partials
  */
+
+ // If this file is called directly, abort.
+ defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
+
 ?>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->

@@ -116,7 +116,20 @@ class WP_AI_MANAGER_ADMIN {
 		register_setting( $this->plugin_name . '-tracking', 'gtm-head',
 			array(
 				'type' => 'boolean',
-				'default' => true) 
+				'default' => true)
+			);
+
+		// Load scripts in footer.
+		register_setting( $this->plugin_name . '-speed-up', 'scripts-footer',
+			array(
+				'type' => 'boolean',
+				'default' => true)
+			);
+		// Update htaccess to speed up the site.
+		register_setting( $this->plugin_name . '-speed-up', 'upgrade-htaccess',
+			array(
+				'type' => 'boolean',
+				'default' => true)
 			);
 	}
 
