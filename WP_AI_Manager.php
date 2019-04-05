@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 /**
  * Currently plugin version.
  */
-define( 'WP_AI_MANAGER_VERSION', '1.0.0' );
+define( 'WP_AI_MANAGER_VERSION', '1.1.0' );
 
 /**
  * The code that runs during plugin activation.

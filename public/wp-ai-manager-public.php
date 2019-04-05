@@ -53,6 +53,8 @@ class WP_AI_MANAGER_PUBLIC {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 
+		$this->add_related();
+
 	}
 
 	/**
@@ -61,18 +63,6 @@ class WP_AI_MANAGER_PUBLIC {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Plugin_Name_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Plugin_Name_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
 
 		//wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/plugin-name-public.css', array(), $this->version, 'all' );
 
@@ -94,5 +84,15 @@ class WP_AI_MANAGER_PUBLIC {
 			require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/wp-ai-manager-speed-up.php';
 			WP_AI_MANAGER_PUBLIC_PAGE_SPEED_UP::load_scripts_in_footer($this->plugin_name);
 		}
+
+		if ( 1 ) {
+			// Adding the Google Tag Manager Tracking code to the wordpress header
+			wp_enqueue_script( $this->plugin_name . '-track-scroll', plugin_dir_url( __FILE__ ) . 'js/wp-ai-manager-scroll.js', array( 'jquery' ), $this->version, true );
+		}
+	}
+
+	public function add_related() {
+		require_once plugin_dir_path( __FILE__ ) . 'wp-ai-manager-related.php';
+		add_filter( 'the_content', array('WP_AI_MANAGER_PUBLIC_RELATED', 'add_related_to_post') );
 	}
 }

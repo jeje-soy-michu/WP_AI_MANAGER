@@ -149,8 +149,9 @@ class WP_AI_MANAGER {
 	private function define_public_hooks() {
 		$plugin_public = new WP_AI_MANAGER_PUBLIC( $this->get_plugin_name(), $this->get_version() );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles', 999);
+		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 	}
+
 	/**
 	 * Run the loader to execute all of the hooks with WordPress.
 	 *
@@ -159,6 +160,7 @@ class WP_AI_MANAGER {
 	public function run() {
 		$this->loader->run();
 	}
+
 	/**
 	 * The name of the plugin used to uniquely identify it within the context of
 	 * WordPress and to define internationalization functionality.
